@@ -1,0 +1,15 @@
+.selectTrigger {
+  font-size: 18px; /* Увеличиваем шрифт для текущего языка */
+  padding: 20px 10px;
+  cursor: pointer;
+}
+
+.selectItem {
+  font-size: 18px; /* Увеличиваем шрифт для элементов списка */
+  padding: 8px 12px; /* Увеличиваем отступы */
+  cursor: pointer;
+}
+
+.selectContent {
+  min-width: 60px; /* Устанавливаем минимальную ширину выпадающего списка */
+}

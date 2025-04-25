@@ -1,0 +1,13 @@
+{
+  "header": {
+    "menu": {
+      "password": "비밀번호 변경"
+    },
+    "catalog": "카탈로그",
+    "language": "언어",
+    "create": "만들기",
+    "search": "검색",
+    "save": "저장",
+    "logo": "East Telecom"
+  }
+}

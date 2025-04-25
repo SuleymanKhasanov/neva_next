@@ -1,0 +1,12 @@
+{
+  "modal.block.title": "Заблокировать пользователя",
+  "modal.block.description": "Вы уверены, что хотите заблокировать этого пользователя?",
+  "modal.delete.title": "Удалить",
+  "modal.actions.ok": "ОК",
+  "modal.actions.cancel": "Отмена",
+  "modal.loading": "Загрузка",
+  "modal.show": "Показать",
+  "modal.edit": "Редактировать",
+  "modal.delete": "Удалить",
+  "modal.cancel": "Отмена"
+}

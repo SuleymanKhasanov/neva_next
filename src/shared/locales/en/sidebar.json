@@ -1,0 +1,18 @@
+{
+  "sidebar.close": "Close Sidebar",
+  "sidebar.open": "Open Sidebar",
+  "sidebar.menu.main": "Main",
+  "sidebar.menu.platform": "Platform",
+  "sidebar.menu.admin": "Admin",
+  "sidebar.menu.settings": "Settings",
+  "sidebar.menu.specializations": "Specializations",
+  "sidebar.menu.users": "Users",
+  "sidebar.menu.education.title": "Education",
+  "sidebar.menu.education.interview": "Interview",
+  "sidebar.menu.questions": "Questions",
+  "sidebar.menu.skills": "Skills",
+  "sidebar.menu.collections": "Collections",
+  "sidebar.remove.selected": "Remove Selected",
+  "sidebar.total.questions": "Total Questions",
+  "sidebar.back.button": "Back"
+}

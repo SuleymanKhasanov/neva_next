@@ -1,0 +1,65 @@
+.container {
+  width: 96%;
+  margin: 0 auto;
+  padding: 10px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.searchSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchButton {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.searchIcon {
+  color: var(--foreground);
+  font-size: 20px;
+}
+
+.drawerContent {
+  top: 0;
+  border-radius: 0 0 10px 10px;
+  padding: 20px;
+  background-color: var(--background);
+  z-index: 20; /* Выше Header */
+  width: 100%;
+  max-width: 100%; /* Занимает всю ширину */
+}
+
+/* Медиа-запрос для мобильных устройств */
+@media (max-width: 768px) {
+  .searchSection > :first-child {
+    display: none;
+  }
+
+  .searchButton {
+    display: block;
+  }
+}

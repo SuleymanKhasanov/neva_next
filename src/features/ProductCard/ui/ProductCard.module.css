@@ -1,0 +1,162 @@
+.card {
+  border: none;
+  border-radius: 20px;
+  background-color: #eaeaea;
+  border: 1px solid #d7d7d7;
+  overflow: hidden;
+  padding: 10px;
+  cursor: pointer;
+  gap: 0;
+}
+
+.cardHeader {
+  padding: 10px;
+}
+
+.brandName {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--foreground);
+}
+
+.cardContent {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.productImage {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.productInfo {
+  text-align: left;
+  width: 100%;
+}
+
+.productTag {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-bottom: 5px;
+}
+
+.productName {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--foreground);
+  margin: 0 0 10px;
+}
+
+.productDescription {
+  font-size: 14px;
+  color: var(--foreground);
+  line-height: 1.5;
+  max-height: 4.5em;
+  overflow: hidden;
+  position: relative;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+
+/* Добавляем эффект затухания */
+.productDescription::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5em; /* Высота градиента */
+  background: linear-gradient(to bottom, transparent, #eaeaea);
+  pointer-events: none;
+}
+
+.moreBtnWrapper {
+  text-align: right;
+  width: 100%;
+}
+
+.moreButton {
+  padding: 20px;
+  cursor: pointer;
+}
+
+.drawerContent {
+  background-color: var(--muted);
+}
+
+.drawerContainer {
+  margin: 0 auto;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.drawerBody {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.drawerImageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.drawerTitle {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.drawerImage {
+  width: auto;
+  height: 250px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.drawerDescription {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 500px;
+}
+
+.callUsBtn {
+  padding: 25px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.grabber {
+  width: 100px;
+  height: 5px;
+  background-color: #ccc;
+  border-radius: 2.5px;
+  margin: 10px auto;
+  cursor: grab;
+}
+
+@media (max-width: 768px) {
+  .drawerBody {
+    flex-direction: column;
+  }
+
+  .drawerDescription {
+    width: 100%;
+  }
+}

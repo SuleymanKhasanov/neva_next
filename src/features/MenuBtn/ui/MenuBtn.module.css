@@ -1,0 +1,10 @@
+.btn {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.btnIcon {
+  width: 25px;
+  height: 25px;
+}

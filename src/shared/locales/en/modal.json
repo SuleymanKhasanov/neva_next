@@ -1,0 +1,12 @@
+{
+  "modal.block.title": "Block User",
+  "modal.block.description": "Are you sure you want to block this user?",
+  "modal.delete.title": "Delete",
+  "modal.actions.ok": "OK",
+  "modal.actions.cancel": "Cancel",
+  "modal.loading": "Loading",
+  "modal.show": "Show",
+  "modal.edit": "Edit",
+  "modal.delete": "Delete",
+  "modal.cancel": "Cancel"
+}

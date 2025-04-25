@@ -1,0 +1,13 @@
+{
+  "header": {
+    "menu": {
+      "password": "Сменить пароль"
+    },
+    "catalog": "Каталог",
+    "language": "Язык",
+    "create": "Создать",
+    "search": "Поиск",
+    "save": "Сохранить",
+    "logo": "East Telecom"
+  }
+}

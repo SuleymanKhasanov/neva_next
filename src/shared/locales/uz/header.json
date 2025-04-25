@@ -1,0 +1,13 @@
+{
+  "header": {
+    "menu": {
+      "password": "Parolni o'zgartirish"
+    },
+    "catalog": "Katalog",
+    "language": "Til",
+    "create": "Yaratish",
+    "search": "Qidirish",
+    "save": "Saqlash",
+    "logo": "East Telecom"
+  }
+}

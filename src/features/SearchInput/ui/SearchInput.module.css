@@ -1,0 +1,48 @@
+.searchContainer {
+  position: relative;
+  width: 400px;
+  min-width: 300px;
+}
+
+.searchInput {
+  padding: 20px;
+  background-color: var(--muted);
+  text-align: center;
+}
+
+.searchInput::placeholder {
+  text-align: center;
+}
+
+.iconsContainer {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  background-color: var(--background);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.searchIcon {
+  color: var(--muted-foreground);
+  font-size: 16px;
+}
+
+/* Скрываем бейдж на мобильных устройствах */
+@media (max-width: 768px) {
+  .badge {
+    display: none;
+  }
+  .searchContainer {
+    width: 100%;
+    min-width: 300px;
+  }
+}

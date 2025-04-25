@@ -1,0 +1,30 @@
+{
+  "sidebar": {
+    "close": "Close Sidebar",
+    "open": "Open Sidebar",
+    "menu": {
+      "main": "Main",
+      "platform": "Platform",
+      "admin": "Admin",
+      "settings": "Settings",
+      "specializations": "Specializations",
+      "users": "Users",
+      "education": {
+        "title": "Education",
+        "interview": "Interview"
+      },
+      "questions": "Questions",
+      "skills": "Skills",
+      "collections": "Collections"
+    },
+    "remove": {
+      "selected": "Remove Selected"
+    },
+    "total": {
+      "questions": "Total Questions"
+    },
+    "back": {
+      "button": "Back"
+    }
+  }
+}

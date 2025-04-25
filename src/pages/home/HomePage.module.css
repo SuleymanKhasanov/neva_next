@@ -1,0 +1,48 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionHeader {
+  display: flex;
+  gap: 10px;
+  padding: 10px 10px 10px 0px;
+  align-items: center;
+}
+
+.sectionIcon {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  background-color: var(--primary);
+  border-radius: 10px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.productList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.contactWithUsBtn {
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+}

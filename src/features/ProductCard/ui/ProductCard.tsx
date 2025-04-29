@@ -112,7 +112,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       {/* Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent className={styles.drawerContent}>
-          <div className={styles.grabber} />
           <div className={styles.drawerContainer}>
             <div className={styles.drawerBody}>
               <div className={styles.drawerImageWrapper}>

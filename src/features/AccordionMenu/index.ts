@@ -1,3 +1,3 @@
-import AccordionMenu from './ui/AccordionMenu';
+import InteractiveAccordionMenu from './ui/InteractiveAccordionMenu';
 
-export { AccordionMenu };
+export { InteractiveAccordionMenu };

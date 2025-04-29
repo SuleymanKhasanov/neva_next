@@ -1,5 +1,7 @@
 {
   "contacts": {
-    "contact_with_us": "Связаться с нами"
+    "contacts_menu": "Контакты и чат",
+    "contact_with_us": "Связаться с нами",
+    "chat_with_support": "Чат с поддережкой"
   }
 }

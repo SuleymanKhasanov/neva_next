@@ -1,31 +1,39 @@
+/* src/features/AccordionMenu/ui/AccordionMenu.module.css */
 .accordionContainer {
   width: 90%;
-  display: flex;
-  padding: 0px;
-  margin: 0px auto;
+  margin: 0 auto;
+  padding: 0;
   gap: 20px;
-  /* border-top: 1px solid #e7e7e7; */
-  height: auto;
-  opacity: 0;
-  transition: all 0.3s ease;
+  max-height: 0;
   overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease,
+    margin 0.3s ease;
+  z-index: 10; /* Выше Header */
+  position: relative;
+  display: flex;
 }
 
 .accordionContainer.open {
-  height: 80vh;
-  opacity: 1;
+  max-height: 80vh;
   padding: 20px;
   margin: 14px auto;
-  overflow: scroll;
+  overflow-y: auto;
 }
 
 .accordionContainer.closed {
-  height: 0;
-  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  margin: 0 auto;
 }
 
 .section {
-  flex: 1;
+  flex: 1; /* Равномерное распределение на десктопе */
+  min-width: 0; /* Предотвращает переполнение */
+}
+
+.nevaSection,
+.xSolutionSection {
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Плавная анимация */
 }
 
 .menuTitleWrapper {
@@ -58,6 +66,7 @@
 .toggleButton {
   display: none;
   cursor: pointer;
+  background-color: var(--content-box);
 }
 
 .toggleIcon {
@@ -73,6 +82,8 @@
   display: flex;
   flex-direction: column;
   border-left: 2px solid #cbcbcb;
+  max-height: none; /* Убираем ограничение высоты */
+  overflow: visible; /* Обеспечиваем видимость содержимого */
 }
 
 .subcategory h4 {
@@ -102,17 +113,43 @@
 }
 
 @media (max-width: 768px) {
+  .accordionContainer {
+    display: block;
+    height: 60vh;
+  }
+
   .section {
-    flex: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
   }
 
-  .active {
+  .nevaSection {
     display: block;
+    opacity: 1;
+    transform: translateX(0);
   }
 
-  .hidden {
-    display: none;
+  .xSolutionSection {
+    display: block;
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+  }
+
+  .nevaSection.hidden {
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+  }
+
+  .xSolutionSection.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
   }
 
   .toggleButton {

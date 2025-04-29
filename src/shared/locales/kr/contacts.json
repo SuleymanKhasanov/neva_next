@@ -1,5 +1,7 @@
 {
   "contacts": {
-    "contact_with_us": "저희와 연락하세요"
+    "contacts_menu": "연락처 및 채팅",
+    "contact_with_us": "문의하기",
+    "chat_with_support": "지원팀과 채팅"
   }
 }

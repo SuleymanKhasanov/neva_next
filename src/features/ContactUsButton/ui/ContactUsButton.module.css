@@ -1,0 +1,46 @@
+/* src/features/ContactUsButton/ui/ContactUsButton.module.css */
+.fluentSubButton {
+  background: var(--fluent-button); /* Акриловый эффект */
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Лёгкая граница */
+  border-radius: 40px;
+  padding: 25px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+  position: relative;
+  overflow: hidden; /* Для reveal highlight */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Отступ между иконкой и текстом */
+  cursor: pointer;
+}
+
+.fluentSubButton:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Усиление тени */
+}
+
+/* Эффект reveal highlight */
+.fluentSubButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.fluentSubButton:hover::before {
+  left: 100%; /* Анимация света при наведении */
+}
+
+.buttonIcon {
+  font-size: 16px;
+}

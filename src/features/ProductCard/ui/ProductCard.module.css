@@ -1,8 +1,8 @@
 .card {
   border: none;
   border-radius: 20px;
-  background-color: #eaeaea;
-  border: 1px solid #d7d7d7;
+  background-color: var(--card);
+  border: 1px solid var(--border);
   overflow: hidden;
   padding: 10px;
   cursor: pointer;
@@ -32,7 +32,7 @@
   object-fit: cover;
   margin-bottom: 10px;
   border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px var(--shadow-card);
 }
 
 .productInfo {
@@ -65,15 +65,19 @@
   text-overflow: ellipsis;
 }
 
-/* Добавляем эффект затухания */
+/* Эффект затухания */
 .productDescription::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 5em; /* Высота градиента */
-  background: linear-gradient(to bottom, transparent, #eaeaea);
+  height: 5em;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--card)
+  ); /* Адаптация для тёмной темы */
   pointer-events: none;
 }
 
@@ -88,7 +92,8 @@
 }
 
 .drawerContent {
-  background-color: var(--muted);
+  background-color: var(--content-box); /* Используем --popover */
+  color: var(--popover-foreground);
 }
 
 .drawerContainer {
@@ -118,6 +123,7 @@
   font-size: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
+  color: var(--foreground);
 }
 
 .drawerImage {
@@ -126,7 +132,7 @@
   object-fit: cover;
   margin-bottom: 10px;
   border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--shadow-card); /* Используем --shadow */
 }
 
 .drawerDescription {
@@ -134,21 +140,13 @@
   flex-direction: column;
   gap: 20px;
   width: 500px;
+  color: var(--foreground);
 }
 
 .callUsBtn {
   padding: 25px;
   cursor: pointer;
   margin-bottom: 20px;
-}
-
-.grabber {
-  width: 100px;
-  height: 5px;
-  background-color: #ccc;
-  border-radius: 2.5px;
-  margin: 10px auto;
-  cursor: grab;
 }
 
 @media (max-width: 768px) {

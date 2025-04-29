@@ -47,7 +47,9 @@ export enum TranslationKeys {
   CardButton = 'more_button',
   CallUs = 'call_us',
 
+  ContactsMenu = 'contacts_menu',
   ContactsWithUs = 'contact_with_us',
+  ChatWithSupport = 'chat_with_support',
 }
 
 export type Header = {
@@ -122,7 +124,9 @@ export type Card = {
 };
 
 export type Contacts = {
+  contacts_menu: string;
   contact_with_us: string;
+  chat_with_support: string;
 };
 
 export type TranslationType = {

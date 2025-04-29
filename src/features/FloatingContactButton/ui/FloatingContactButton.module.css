@@ -1,0 +1,95 @@
+/* src/widgets/FloatingContactButton/ui/FloatingContactButton.module.css */
+.buttonContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 20; /* Выше других элементов */
+}
+
+.fluentButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--fluent-button); /* Акриловый эффект */
+  backdrop-filter: blur(10px); /* Размытие фона */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Лёгкая граница */
+  border-radius: 40px; /* Сильные скругления */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fluentButton:hover {
+  transform: scale(1.05); /* Лёгкое увеличение */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Усиление тени */
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background: rgba(102, 102, 102, 0.326);
+  backdrop-filter: blur(10px); /* Акриловый эффект */
+  border-radius: 50%; /* Круг */
+  transition: transform 0.3s ease; /* Плавное вращение */
+  border: 1px solid #808080;
+}
+
+.rotate {
+  transform: rotate(-180deg); /* Вращение на 180 градусов */
+}
+
+.icon {
+  width: 25px;
+  height: 25px;
+}
+
+.buttonText {
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.subButtons {
+  position: absolute;
+  bottom: 85px; /* Над основной кнопкой */
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transform: scale(0.8) translateY(20px); /* Начальное состояние */
+  transform-origin: bottom right;
+  pointer-events: none; /* Отключаем взаимодействие */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.subButtons.open {
+  opacity: 1;
+  transform: scale(1) translateY(0); /* Анимация вылета */
+  pointer-events: auto; /* Включаем взаимодействие */
+}
+
+.subButtonWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .buttonContainer {
+    bottom: 20px;
+    right: 10px;
+  }
+
+  .fluentButton {
+    padding: 10px 16px;
+  }
+
+  .subButtons {
+    bottom: 80px;
+  }
+}

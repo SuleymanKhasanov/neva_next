@@ -52,7 +52,9 @@ export async function loadTranslations(
       call_us: 'Call Us',
     },
     contacts: {
+      contacts_menu: 'Contacts and Chat',
       contact_with_us: 'Contact us',
+      chat_with_support: 'Chat with Support',
     },
   };
 

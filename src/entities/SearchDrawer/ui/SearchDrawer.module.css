@@ -15,12 +15,7 @@
 .drawer {
   width: 100%;
   max-width: 400px;
-  background-color: rgba(
-    255,
-    255,
-    255,
-    1
-  ); /* Полупрозрачный белый фон */
+  background-color: var(--background); /* Полупрозрачный белый фон */
   backdrop-filter: blur(5px);
   padding: 20px;
   border-radius: 0px 0px 15px 15px; /* Скругление нижних углов */

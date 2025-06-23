@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLoading } from '@/entities/Loading/ui/LoadingContext';
 import {
   Select,
@@ -14,14 +14,21 @@ import {
 import styles from './LanguageSwitcher.module.css';
 
 const LanguageSwitcher = () => {
-  const locale = useLocale(); // Получаем текущий язык
-  const router = useRouter(); // Хук для навигации
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
   const { setIsLoading } = useLoading();
 
   const handleLanguageChange = (newLocale: string) => {
     setIsLoading(true);
-    // Перенаправляем на тот же маршрут, но с новым locale
-    router.push(`/${newLocale}`);
+    // Проверяем, существует ли pathname, иначе используем корневой маршрут
+    const currentPath = pathname || '/';
+    // Заменяем текущую локализацию на новую
+    const newPath = currentPath.startsWith(`/${locale}`)
+      ? currentPath.replace(`/${locale}`, `/${newLocale}`)
+      : `/${newLocale}${currentPath === '/' ? '' : currentPath}`;
+    router.push(newPath);
+    setTimeout(() => setIsLoading(false), 500); // Задержка для имитации загрузки
   };
 
   return (

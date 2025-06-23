@@ -1,84 +1,42 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/ui/accordion';
-import { fetchCategories } from '@/shared/lib/api';
-import styles from './AccordionMenu.module.css';
 import Image from 'next/image';
+import { Button } from '@/shared/ui/button';
+import { Category } from '@/shared/model/types';
 import purpleLiquid from '@/shared/assets/gif/purple-liquid.gif';
 import blueLiquid from '@/shared/assets/gif/blue-liquid.gif';
 import { LuArrowRight, LuArrowLeft } from 'react-icons/lu';
-import { Button } from '@/shared/ui/button';
-import { useLocale } from 'next-intl';
-
-interface Subcategory {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  image: string[];
-  count: number;
-  subcategories: Subcategory[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  image: string[];
-  count: number;
-  subcategories: Subcategory[];
-}
+import styles from './AccordionMenu.module.css';
 
 interface AccordionMenuProps {
   isMenuOpen: boolean;
+  categories: Category[] | null | undefined;
+  activeSection?: 'Neva' | 'X-Solution';
+  toggleSection?: () => void;
 }
 
-const AccordionMenu = ({ isMenuOpen }: AccordionMenuProps) => {
-  const locale = useLocale(); // Получаем текущий язык
-  const [nevaCategories, setNevaCategories] = useState<Category[]>(
-    [],
-  );
-  const [xSolutionCategories, setXSolutionCategories] = useState<
-    Category[]
-  >([]);
-  const [activeSection, setActiveSection] = useState<
-    'Neva' | 'X-Solution'
-  >('Neva');
+export default function AccordionMenu({
+  isMenuOpen = false,
+  categories,
+  activeSection = 'Neva',
+  toggleSection = () => {},
+}: AccordionMenuProps) {
+  const safeCategories = Array.isArray(categories) ? categories : [];
 
-  // Запрос к API
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await fetchCategories(locale); // Передаём текущий язык
-        const neva =
-          data.find((category) => category.name === 'Neva')
-            ?.subcategories || [];
-        const xSolution =
-          data.find((category) => category.name === 'X-Solution')
-            ?.subcategories || [];
-        setNevaCategories(neva);
-        setXSolutionCategories(xSolution);
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
-    };
+  const nevaCategories =
+    safeCategories.find((category) => category.name === 'Neva')
+      ?.subcategories || [];
+  const xSolutionCategories =
+    safeCategories.find((category) => category.name === 'X-Solution')
+      ?.subcategories || [];
 
-    loadCategories();
-  }, [locale]); // Зависимость от locale, чтобы обновлять данные при смене языка
+  console.log(nevaCategories);
+  console.log(xSolutionCategories);
 
-  // Функция для переключения секции
-  const toggleSection = () => {
-    setActiveSection(
-      activeSection === 'Neva' ? 'X-Solution' : 'Neva',
-    );
-  };
   return (
     <div
       className={`${styles.accordionContainer} ${
@@ -86,7 +44,7 @@ const AccordionMenu = ({ isMenuOpen }: AccordionMenuProps) => {
       }`}
     >
       <div
-        className={`${styles.section} ${
+        className={`${styles.section} ${styles.nevaSection} ${
           activeSection === 'Neva' ? styles.active : styles.hidden
         }`}
       >
@@ -101,53 +59,56 @@ const AccordionMenu = ({ isMenuOpen }: AccordionMenuProps) => {
           </div>
           <Button
             className={styles.toggleButton}
-            onClick={toggleSection}
             variant="secondary"
+            onClick={toggleSection}
           >
             X-Solution <LuArrowRight className={styles.toggleIcon} />
           </Button>
         </div>
-
         <Accordion
           type="single"
           collapsible
           className={styles.accordion}
         >
-          {nevaCategories.map((category) => (
-            <AccordionItem
-              key={category.id}
-              value={`neva-${category.id}`}
-            >
-              <AccordionTrigger>{category.name}</AccordionTrigger>
-              <AccordionContent>
-                <div className={styles.subcategoryColumn}>
-                  {category.subcategories.map((subcategory) => (
-                    <div
-                      key={subcategory.id}
-                      className={styles.subcategory}
-                    >
-                      <h4>{subcategory.name}</h4>
-                      {subcategory.subcategories.length > 0 && (
-                        <ul>
-                          {subcategory.subcategories.map(
-                            (subSubcategory) => (
-                              <li key={subSubcategory.id}>
-                                {subSubcategory.name.split(',')}
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+          {nevaCategories.length > 0 ? (
+            nevaCategories.map((category) => (
+              <AccordionItem
+                key={category.id}
+                value={`neva-${category.id}`}
+              >
+                <AccordionTrigger>{category.name}</AccordionTrigger>
+                <AccordionContent>
+                  <div className={styles.subcategoryColumn}>
+                    {category.subcategories.map((subcategory) => (
+                      <div
+                        key={subcategory.id}
+                        className={styles.subcategory}
+                      >
+                        <h4>{subcategory.name}</h4>
+                        {subcategory.subcategories.length > 0 && (
+                          <ul>
+                            {subcategory.subcategories.map(
+                              (subSubcategory) => (
+                                <li key={subSubcategory.id}>
+                                  {subSubcategory.name}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))
+          ) : (
+            <p>No Neva categories available</p>
+          )}
         </Accordion>
       </div>
       <div
-        className={`${styles.section} ${
+        className={`${styles.section} ${styles.xSolutionSection} ${
           activeSection === 'X-Solution'
             ? styles.active
             : styles.hidden
@@ -164,11 +125,10 @@ const AccordionMenu = ({ isMenuOpen }: AccordionMenuProps) => {
           </div>
           <Button
             className={styles.toggleButton}
-            onClick={toggleSection}
             variant="secondary"
+            onClick={toggleSection}
           >
-            <LuArrowLeft className={styles.toggleIcon} />
-            Neva
+            <LuArrowLeft className={styles.toggleIcon} /> Neva
           </Button>
         </div>
         <Accordion
@@ -176,41 +136,43 @@ const AccordionMenu = ({ isMenuOpen }: AccordionMenuProps) => {
           collapsible
           className={styles.accordion}
         >
-          {xSolutionCategories.map((category) => (
-            <AccordionItem
-              key={category.id}
-              value={`x-solution-${category.id}`}
-            >
-              <AccordionTrigger>{category.name}</AccordionTrigger>
-              <AccordionContent>
-                <div className={styles.subcategoryColumn}>
-                  {category.subcategories.map((subcategory) => (
-                    <div
-                      key={subcategory.id}
-                      className={styles.subcategory}
-                    >
-                      <h4>{subcategory.name}</h4>
-                      {subcategory.subcategories.length > 0 && (
-                        <ul>
-                          {subcategory.subcategories.map(
-                            (subSubcategory) => (
-                              <li key={subSubcategory.id}>
-                                {subSubcategory.name}
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+          {xSolutionCategories.length > 0 ? (
+            xSolutionCategories.map((category) => (
+              <AccordionItem
+                key={category.id}
+                value={`x-solution-${category.id}`}
+              >
+                <AccordionTrigger>{category.name}</AccordionTrigger>
+                <AccordionContent>
+                  <div className={styles.subcategoryColumn}>
+                    {category.subcategories.map((subcategory) => (
+                      <div
+                        key={subcategory.id}
+                        className={styles.subcategory}
+                      >
+                        <h4>{subcategory.name}</h4>
+                        {subcategory.subcategories.length > 0 && (
+                          <ul>
+                            {subcategory.subcategories.map(
+                              (subSubcategory) => (
+                                <li key={subSubcategory.id}>
+                                  {subSubcategory.name}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))
+          ) : (
+            <p>No X-Solution categories available</p>
+          )}
         </Accordion>
       </div>
     </div>
   );
-};
-
-export default AccordionMenu;
+}

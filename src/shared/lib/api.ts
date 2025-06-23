@@ -1,47 +1,8 @@
-interface ApiResponse<T> {
-  status: boolean;
-  message: string;
-  data: T;
-  error: string | null;
-}
-
-interface Subcategory {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  image: string[];
-  count: number;
-  subcategories: Subcategory[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  image: string[];
-  count: number;
-  subcategories: Subcategory[];
-}
-
-interface Product {
-  id: number;
-  name: string;
-  category_id: string;
-  category: string;
-  slug: string;
-  description: string;
-  image: string[];
-}
-
-interface ProductCategory {
-  id: number;
-  name: string;
-  description: string;
-  image: string[];
-  products: Product[];
-}
+import {
+  ApiResponse,
+  Category,
+  ProductCategory,
+} from '@/shared/model/types';
 
 const API_BASE_URL = 'https://2.ugdr97aqcjm.xvest3.ru/api';
 
@@ -54,6 +15,7 @@ export const fetchData = async <T>(
       headers: {
         'Accept-Language': locale,
       },
+      cache: 'force-cache',
     });
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -69,14 +31,12 @@ export const fetchData = async <T>(
   }
 };
 
-// Функция для получения списка категорий
 export const fetchCategories = async (
   locale: string,
 ): Promise<Category[]> => {
   return fetchData<Category[]>('/category-list', locale);
 };
 
-// Функция для получения списка продуктов
 export const fetchProducts = async (
   locale: string,
 ): Promise<ProductCategory[]> => {

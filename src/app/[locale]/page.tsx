@@ -1,32 +1,27 @@
-import HomePage from '@/pages/home/page';
-import { fetchProducts } from '@/shared/lib/api';
+import { HomePage } from '@/pages/home';
+import { fetchCategories, fetchProducts } from '@/shared/lib/api';
+import { Category, Product } from '@/shared/model/types';
 
-interface Product {
-  id: number;
-  name: string;
-  category_id: string;
-  category: string;
-  slug: string;
-  description: string;
-  image: string[];
+interface HomeProps {
+  params: Promise<{ locale: string }>;
 }
 
-export default async function Home({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function Home({ params }: HomeProps) {
   const { locale } = await params;
 
-  // Получаем данные на сервере
   let products: Product[] = [];
+  let categories: Category[] = [];
+
   try {
-    const data = await fetchProducts(locale || 'en');
-    products = data.flatMap((category) => category.products);
+    const [productData, categoryData] = await Promise.all([
+      fetchProducts(locale || 'en'),
+      fetchCategories(locale || 'en'),
+    ]);
+    products = productData.flatMap((category) => category.products);
+    categories = categoryData;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    products = [];
+    console.error('Error fetching data:', error);
   }
 
-  return <HomePage products={products} />;
+  return <HomePage products={products} categories={categories} />;
 }

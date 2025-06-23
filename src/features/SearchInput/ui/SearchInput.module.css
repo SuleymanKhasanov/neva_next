@@ -6,7 +6,7 @@
 
 .searchInput {
   padding: 20px;
-  background-color: var(--muted);
+  background-color: var(--content-box);
   text-align: center;
 }
 

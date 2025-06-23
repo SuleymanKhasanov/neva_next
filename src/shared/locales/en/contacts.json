@@ -1,5 +1,7 @@
 {
   "contacts": {
-    "contact_with_us": "Contact us"
+    "contacts_menu": "Contacts and Chat",
+    "contact_with_us": "Contact Us",
+    "chat_with_support": "Chat with Support"
   }
 }

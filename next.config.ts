@@ -8,7 +8,7 @@ const withNextIntl = createNextIntlPlugin(
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['2.ugdr97aqcjm.xvest3.ru'], // Добавляем домен
+    domains: ['2.ugdr97aqcjm.xvest3.ru'],
   },
   async rewrites() {
     return [

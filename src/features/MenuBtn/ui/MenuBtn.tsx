@@ -26,7 +26,9 @@ const MenuBtn = ({ isMenuOpen, onClick }: MenuBtnProps) => {
           <Button
             variant="outline"
             className={styles.btn}
-            onClick={onClick}
+            onClick={() => {
+              onClick();
+            }}
           >
             {isMenuOpen ? (
               <TbX className={styles.btnIcon} />

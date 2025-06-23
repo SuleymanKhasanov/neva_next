@@ -9,7 +9,6 @@ interface SimpleOptimizedImageProps extends Omit<ImageProps, 'src'> {
   targetWidth?: number;
   targetHeight?: number;
   quality?: number;
-  enableWebP?: boolean;
 }
 
 export const SimpleOptimizedImage = ({
@@ -17,7 +16,6 @@ export const SimpleOptimizedImage = ({
   targetWidth = 800,
   targetHeight = 600,
   quality = 80,
-  enableWebP = true,
   alt,
   ...imageProps
 }: SimpleOptimizedImageProps) => {

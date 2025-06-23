@@ -1,7 +1,6 @@
 // src/app/api/image/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-// Простая реализация без Sharp - использует прокси с заголовками оптимизации
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Проверяем, что URL безопасный (только ваш домен)
+    // Проверяем безопасность URL
     const allowedDomains = ['2.ugdr97aqcjm.xvest3.ru'];
     const urlObj = new URL(imageUrl);
 
@@ -24,7 +23,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Domain not allowed', { status: 403 });
     }
 
-    // Получаем изображение с исходного API
+    // Получаем изображение
     const imageResponse = await fetch(imageUrl, {
       headers: {
         'User-Agent': 'NextJS-ImageOptimizer/1.0',
@@ -42,58 +41,23 @@ export async function GET(request: NextRequest) {
       imageResponse.headers.get('content-type') || 'image/jpeg';
     const imageBuffer = await imageResponse.arrayBuffer();
 
-    // Возвращаем изображение с оптимизированными заголовками
+    // Возвращаем с метаданными для клиентской оптимизации
     return new NextResponse(imageBuffer, {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Content-Length': imageBuffer.byteLength.toString(),
-        // Заголовки для браузерной оптимизации
         Vary: 'Accept',
         'X-Content-Type-Options': 'nosniff',
+        // Метаданные для клиента
+        'X-Target-Width': width.toString(),
+        'X-Target-Height': height.toString(),
+        'X-Target-Quality': (quality / 100).toString(),
+        'X-Optimize': 'true',
       },
     });
   } catch (error) {
     console.error('Image proxy error:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
-  }
-}
-
-// POST метод для предзагрузки изображений
-export async function POST(request: NextRequest) {
-  try {
-    const { urls } = await request.json();
-
-    if (!Array.isArray(urls)) {
-      return NextResponse.json(
-        { error: 'URLs must be an array' },
-        { status: 400 },
-      );
-    }
-
-    // Предзагружаем изображения (просто проверяем доступность)
-    const results = await Promise.allSettled(
-      urls.map(async (url: string) => {
-        try {
-          const response = await fetch(url, { method: 'HEAD' });
-          return response.ok;
-        } catch {
-          return false;
-        }
-      }),
-    );
-
-    return NextResponse.json({
-      checked: results.filter(
-        (r) => r.status === 'fulfilled' && r.value,
-      ).length,
-      total: urls.length,
-    });
-  } catch (error) {
-    console.error('Preload error:', error);
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
-    );
   }
 }

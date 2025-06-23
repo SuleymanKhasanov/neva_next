@@ -14,9 +14,9 @@ import { useTranslations } from 'next-intl';
 import { TranslationKeys } from '@/shared/config/i18n/translations';
 import { LuPhone } from 'react-icons/lu';
 import {
-  OptimizedImage,
-  useOptimizedImages,
-} from '@/shared/lib/imageUtils';
+  SimpleOptimizedImage,
+  useImagePreloader,
+} from '@/shared/components/SimpleOptimizedImage';
 import styles from './ProductCard.module.css';
 
 interface Product {
@@ -38,9 +38,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
-  const { preloadImages } = useOptimizedImages();
+  const { preloadImages } = useImagePreloader();
 
-  // Предзагружаем изображения при монтировании компонента
+  // Предзагружаем изображения
   useEffect(() => {
     if (product.image && product.image.length > 0) {
       preloadImages(product.image);
@@ -54,7 +54,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return text.substring(0, maxLength) + '...';
   };
 
-  // Обработчик движения мыши для 3D эффекта
+  // 3D эффект при наведении
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
 
@@ -84,7 +84,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     setIsDrawerOpen(true);
   };
 
-  // Переключение изображений в модальном окне
+  // Навигация по изображениям
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
       prev === product.image.length - 1 ? 0 : prev + 1,
@@ -101,20 +101,30 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <>
       <Card className={styles.card} ref={cardRef}>
         <CardContent className={styles.cardContent}>
-          <OptimizedImage
-            src={product.image[0]}
-            alt={product.name}
-            width={300}
-            height={250}
-            className={styles.productImage}
-            optimizeOptions={{ width: 400, height: 300, quality: 85 }}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+          <div
             style={{
               transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: 'transform 0.1s ease-out',
             }}
-            priority={false} // Ленивая загрузка для карточек
-          />
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <SimpleOptimizedImage
+              src={product.image[0]}
+              alt={product.name}
+              width={300}
+              height={250}
+              className={styles.productImage}
+              targetWidth={400}
+              targetHeight={300}
+              quality={85}
+              enableWebP={true}
+              priority={false}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+            />
+          </div>
+
           <div className={styles.productInfo}>
             <p className={styles.productTag}>#{product.slug}</p>
             <h3 className={styles.productName}>{product.name}</h3>
@@ -122,6 +132,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               {truncateText(product.description, 80)}
             </CardDescription>
           </div>
+
           <div className={styles.moreBtnWrapper}>
             <Button
               onClick={handleButtonClick}
@@ -133,7 +144,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </CardContent>
       </Card>
 
-      {/* Drawer с каруселью изображений */}
+      {/* Drawer с изображениями */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent className={styles.drawerContent}>
           <div className={styles.grabber} />
@@ -144,9 +155,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
                   {product.name}
                 </DrawerTitle>
 
-                {/* Карусель изображений */}
                 <div style={{ position: 'relative' }}>
-                  <OptimizedImage
+                  <SimpleOptimizedImage
                     src={product.image[currentImageIndex]}
                     alt={`${product.name} - изображение ${
                       currentImageIndex + 1
@@ -154,12 +164,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
                     width={400}
                     height={300}
                     className={styles.drawerImage}
-                    optimizeOptions={{
-                      width: 600,
-                      height: 400,
-                      quality: 90,
-                    }}
-                    priority={true} // Приоритетная загрузка для активного изображения
+                    targetWidth={600}
+                    targetHeight={400}
+                    quality={90}
+                    enableWebP={true}
+                    priority={true}
                   />
 
                   {/* Навигация по изображениям */}
@@ -167,13 +176,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
                     <>
                       <button
                         onClick={prevImage}
-                        className={`${styles.imageNavButton} ${styles.imageNavLeft}`}
                         style={{
                           position: 'absolute',
                           left: '10px',
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          background: 'rgba(0,0,0,0.5)',
+                          background: 'rgba(0,0,0,0.6)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '50%',
@@ -183,19 +191,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
                         }}
                       >
                         ←
                       </button>
                       <button
                         onClick={nextImage}
-                        className={`${styles.imageNavButton} ${styles.imageNavRight}`}
                         style={{
                           position: 'absolute',
                           right: '10px',
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          background: 'rgba(0,0,0,0.5)',
+                          background: 'rgba(0,0,0,0.6)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '50%',
@@ -205,12 +214,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
                         }}
                       >
                         →
                       </button>
 
-                      {/* Индикаторы изображений */}
+                      {/* Индикаторы */}
                       <div
                         style={{
                           position: 'absolute',
@@ -249,7 +260,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <div className={styles.drawerDescription}>
                 <DrawerDescription>#{product.slug}</DrawerDescription>
                 <p>
-                  {product.description || 'No description available'}
+                  {product.description ||
+                    'Описание товара недоступно'}
                 </p>
                 <a href="tel:+998781500000">
                   <Button className={styles.callUsBtn}>

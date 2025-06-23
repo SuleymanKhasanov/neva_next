@@ -18,12 +18,11 @@ export const SimpleOptimizedImage = ({
   targetHeight = 600,
   quality = 80,
   enableWebP = true,
-  alt, // Явно извлекаем alt для ESLint
+  alt,
   ...imageProps
 }: SimpleOptimizedImageProps) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [isLoading, setIsLoading] = useState(true);
-  const [isOptimizing, setIsOptimizing] = useState(false);
   const mounted = useRef(true);
 
   // Создание URL через API
@@ -45,89 +44,6 @@ export const SimpleOptimizedImage = ({
     return `/api/image?${params.toString()}`;
   };
 
-  // Оптимизация изображения через Canvas
-  const optimizeWithCanvas = async (
-    imageUrl: string,
-  ): Promise<string> => {
-    if (!enableWebP || typeof window === 'undefined') {
-      return imageUrl;
-    }
-
-    try {
-      setIsOptimizing(true);
-
-      // Проверяем поддержку WebP
-      const canvas = document.createElement('canvas');
-      const supportsWebP =
-        canvas.toDataURL('image/webp').indexOf('data:image/webp') ===
-        0;
-
-      if (!supportsWebP) {
-        return imageUrl;
-      }
-
-      // Загружаем изображение
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Failed to fetch');
-
-      const blob = await response.blob();
-
-      // Создаем изображение
-      const img = new window.Image();
-      img.crossOrigin = 'anonymous';
-
-      return new Promise((resolve) => {
-        img.onload = () => {
-          try {
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              resolve(imageUrl);
-              return;
-            }
-
-            // Вычисляем размеры с сохранением пропорций
-            const aspectRatio = img.width / img.height;
-            let newWidth = targetWidth;
-            let newHeight = targetHeight;
-
-            if (targetWidth / targetHeight > aspectRatio) {
-              newWidth = Math.round(targetHeight * aspectRatio);
-            } else {
-              newHeight = Math.round(targetWidth / aspectRatio);
-            }
-
-            // Устанавливаем размеры и рисуем
-            canvas.width = newWidth;
-            canvas.height = newHeight;
-
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-            // Конвертируем в WebP
-            const webpDataUrl = canvas.toDataURL(
-              'image/webp',
-              quality / 100,
-            );
-            resolve(webpDataUrl);
-          } catch {
-            // Если ошибка при обработке, возвращаем оригинальный URL
-            resolve(imageUrl);
-          }
-        };
-
-        img.onerror = () => resolve(imageUrl);
-        img.src = URL.createObjectURL(blob);
-      });
-    } catch {
-      // Если ошибка при загрузке, возвращаем оригинальный URL
-      console.warn('Image optimization failed');
-      return imageUrl;
-    } finally {
-      setIsOptimizing(false);
-    }
-  };
-
   // Эффект оптимизации
   useEffect(() => {
     if (!mounted.current) return;
@@ -136,21 +52,10 @@ export const SimpleOptimizedImage = ({
       try {
         setIsLoading(true);
 
-        // Создаем URL через API
+        // Просто используем API URL без клиентской оптимизации
         const apiUrl = createOptimizedUrl(src);
-
-        // Оптимизируем через Canvas если включено
-        if (enableWebP && !src.startsWith('data:')) {
-          const optimizedSrc = await optimizeWithCanvas(apiUrl);
-          if (mounted.current) {
-            setImageSrc(optimizedSrc);
-          }
-        } else {
-          setImageSrc(apiUrl);
-        }
+        setImageSrc(apiUrl);
       } catch {
-        // Если ошибка при обработке, используем оригинальный src
-        console.error('Image processing failed');
         setImageSrc(src);
       }
     };
@@ -160,7 +65,7 @@ export const SimpleOptimizedImage = ({
     return () => {
       mounted.current = false;
     };
-  }, [src, targetWidth, targetHeight, quality, enableWebP]);
+  }, [src, targetWidth, targetHeight, quality]);
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -168,7 +73,7 @@ export const SimpleOptimizedImage = ({
 
   const handleError = () => {
     setIsLoading(false);
-    setImageSrc(src); // Fallback к оригиналу
+    setImageSrc(src);
   };
 
   return (
@@ -176,55 +81,41 @@ export const SimpleOptimizedImage = ({
       <Image
         {...imageProps}
         src={imageSrc}
-        alt={alt || ''} // Явно указываем alt с fallback
+        alt={alt || ''}
         onLoad={handleLoad}
         onError={handleError}
         style={{
           ...imageProps.style,
-          opacity: isLoading || isOptimizing ? 0.7 : 1,
+          opacity: isLoading ? 0.7 : 1,
           transition: 'opacity 0.3s ease',
         }}
       />
 
-      {/* Простой индикатор загрузки */}
-      {(isLoading || isOptimizing) && (
+      {/* Простой индикатор загрузки без анимации */}
+      {isLoading && (
         <div
           style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '24px',
-            height: '24px',
-            border: '2px solid #f3f3f3',
-            borderTop: '2px solid #3498db',
+            width: '20px',
+            height: '20px',
+            border: '2px solid #ddd',
+            borderTop: '2px solid #666',
             borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
             zIndex: 1,
           }}
-          role="status"
-          aria-label="Загрузка изображения"
+          className="animate-spin"
         />
       )}
-
-      {/* CSS для анимации */}
-      <style jsx>{`
-        @keyframes spin {
-          0% {
-            transform: translate(-50%, -50%) rotate(0deg);
-          }
-          100% {
-            transform: translate(-50%, -50%) rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 };
 
-// Хук для предзагрузки
+// Простой хук для предзагрузки
 export const useImagePreloader = () => {
-  const preloadImages = async (urls: string[]) => {
+  const preloadImages = (urls: string[]) => {
     urls.forEach((url) => {
       const link = document.createElement('link');
       link.rel = 'prefetch';

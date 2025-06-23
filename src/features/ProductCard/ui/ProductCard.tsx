@@ -54,7 +54,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return text.substring(0, maxLength) + '...';
   };
 
-  // 3D эффект при наведении
+  // 3D эффект
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
 
@@ -80,23 +80,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const t = useTranslations('card');
 
-  const handleButtonClick = () => {
-    setIsDrawerOpen(true);
-  };
-
-  // Навигация по изображениям
-  const nextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === product.image.length - 1 ? 0 : prev + 1,
-    );
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? product.image.length - 1 : prev - 1,
-    );
-  };
-
   return (
     <>
       <Card className={styles.card} ref={cardRef}>
@@ -118,7 +101,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
               targetWidth={400}
               targetHeight={300}
               quality={85}
-              enableWebP={true}
               priority={false}
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
@@ -135,7 +117,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
           <div className={styles.moreBtnWrapper}>
             <Button
-              onClick={handleButtonClick}
+              onClick={() => setIsDrawerOpen(true)}
               className={styles.moreButton}
             >
               {t(TranslationKeys.CardButton)}
@@ -144,7 +126,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </CardContent>
       </Card>
 
-      {/* Drawer с изображениями */}
+      {/* Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent className={styles.drawerContent}>
           <div className={styles.grabber} />
@@ -167,15 +149,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
                     targetWidth={600}
                     targetHeight={400}
                     quality={90}
-                    enableWebP={true}
                     priority={true}
                   />
 
-                  {/* Навигация по изображениям */}
+                  {/* Навигация */}
                   {product.image.length > 1 && (
                     <>
                       <button
-                        onClick={prevImage}
+                        onClick={() =>
+                          setCurrentImageIndex((prev) =>
+                            prev === 0
+                              ? product.image.length - 1
+                              : prev - 1,
+                          )
+                        }
                         style={{
                           position: 'absolute',
                           left: '10px',
@@ -192,13 +179,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '18px',
-                          fontWeight: 'bold',
                         }}
                       >
                         ←
                       </button>
                       <button
-                        onClick={nextImage}
+                        onClick={() =>
+                          setCurrentImageIndex((prev) =>
+                            prev === product.image.length - 1
+                              ? 0
+                              : prev + 1,
+                          )
+                        }
                         style={{
                           position: 'absolute',
                           right: '10px',
@@ -215,7 +207,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '18px',
-                          fontWeight: 'bold',
                         }}
                       >
                         →
@@ -259,10 +250,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
               <div className={styles.drawerDescription}>
                 <DrawerDescription>#{product.slug}</DrawerDescription>
-                <p>
-                  {product.description ||
-                    'Описание товара недоступно'}
-                </p>
+                <p>{product.description || 'Описание недоступно'}</p>
                 <a href="tel:+998781500000">
                   <Button className={styles.callUsBtn}>
                     <LuPhone />

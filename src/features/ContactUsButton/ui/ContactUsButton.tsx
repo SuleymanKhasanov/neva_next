@@ -21,7 +21,7 @@ export default function ContactUsButton() {
         : 'en';
 
     router.push(`/${locale}/contacts`);
-    setIsLoading(false);
+    setTimeout(() => setIsLoading(false), 500); // Задержка для имитации загрузки
   };
 
   return (

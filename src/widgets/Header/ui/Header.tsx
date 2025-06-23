@@ -1,4 +1,3 @@
-// src/widgets/Header/ui/Header.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';

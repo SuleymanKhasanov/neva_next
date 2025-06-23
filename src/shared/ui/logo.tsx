@@ -3,13 +3,17 @@
 import Image from 'next/image';
 import lightLogoSrc from '@/shared/assets/icons/est-light-logo.svg';
 import darkLogoSrc from '@/shared/assets/icons/est-dark-logo.svg';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLoading } from '@/entities/Loading/ui/LoadingContext';
 import { TranslationKeys } from '../config/i18n/translations';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 
 const Logo = () => {
   const t = useTranslations('header');
+  const locale = useLocale();
+  const router = useRouter();
+  const { setIsLoading } = useLoading();
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -27,9 +31,15 @@ const Logo = () => {
     return () => observer.disconnect();
   }, []);
 
+  const handleLogoClick = () => {
+    setIsLoading(true);
+    router.push(`/${locale}`);
+    setTimeout(() => setIsLoading(false), 500);
+  };
+
   return (
     <div>
-      <Link href="/">
+      <button onClick={handleLogoClick} className="cursor-pointer">
         <Image
           src={isDark ? darkLogoSrc : lightLogoSrc}
           alt={t(TranslationKeys.HeaderLogo)}
@@ -37,7 +47,7 @@ const Logo = () => {
           width={52}
           height={52}
         />
-      </Link>
+      </button>
     </div>
   );
 };

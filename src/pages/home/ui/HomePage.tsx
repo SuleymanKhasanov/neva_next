@@ -27,7 +27,6 @@ export default function HomePage({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Группируем продукты по category_id
   const groupedProducts = products.reduce((acc, product) => {
     const categoryId = product.category_id;
     if (!acc[categoryId]) {

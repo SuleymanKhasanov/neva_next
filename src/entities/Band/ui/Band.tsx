@@ -44,11 +44,11 @@ export default function Band({
 }) {
   const band =
     useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
-  const fixed = useRef<RapierRigidBody>(null);
-  const j1 = useRef<RapierRigidBody>(null);
-  const j2 = useRef<RapierRigidBody>(null);
-  const j3 = useRef<RapierRigidBody>(null);
-  const card = useRef<RapierRigidBody>(null);
+  const fixed = useRef<RapierRigidBody>(null!);
+  const j1 = useRef<RapierRigidBody>(null!);
+  const j2 = useRef<RapierRigidBody>(null!);
+  const j3 = useRef<RapierRigidBody>(null!);
+  const card = useRef<RapierRigidBody>(null!);
 
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
@@ -62,8 +62,11 @@ export default function Band({
   ) as unknown as GLTFResult;
   const texture = useTexture('/assets/images/tag_texture.png');
 
-  // Проверка структуры card.glb
-  console.log('Nodes:', nodes, 'Materials:', materials);
+  // Лог для подтверждения загрузки ресурсов
+  useEffect(() => {
+    console.log('Card model loaded:', nodes.card.geometry);
+    console.log('Texture loaded:', texture);
+  }, [nodes, texture]);
 
   const [curve] = useState(
     () =>
@@ -75,14 +78,9 @@ export default function Band({
       ]),
   );
 
-  // Настройка joints на верхнем уровне с подавлением ошибки типов
-  // @ts-ignore: Временное подавление ошибки до обновления @react-three/rapier
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  // @ts-ignore
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  // @ts-ignore
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  // @ts-ignore
   useSphericalJoint(j3, card, [
     [0, 0, 0],
     [0, 1.45, 0],
@@ -91,9 +89,12 @@ export default function Band({
   useEffect(() => {
     if (hovered) {
       document.body.style.cursor = dragged ? 'grabbing' : 'grab';
-      return () => void (document.body.style.cursor = 'auto');
+    } else {
+      document.body.style.cursor = 'auto';
     }
-    return () => void (document.body.style.cursor = 'auto');
+    return () => {
+      document.body.style.cursor = 'auto';
+    };
   }, [hovered, dragged]);
 
   useFrame((state, delta) => {
@@ -104,8 +105,10 @@ export default function Band({
       !j3.current ||
       !band.current ||
       !card.current
-    )
+    ) {
+      console.warn('One or more rigid bodies are not initialized');
       return;
+    }
 
     if (dragged) {
       vec
@@ -160,7 +163,7 @@ export default function Band({
 
   return (
     <>
-      <group position={[0, 4.6, 0]}>
+      <group position={[-2, 4.6, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
@@ -182,30 +185,43 @@ export default function Band({
           <group
             scale={2.25}
             position={[0, -1.25, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e: ThreeEvent<PointerEvent>) => {
-              if (e.target instanceof Element) {
-                e.target.releasePointerCapture(e.pointerId);
-                drag(false);
-              }
+            onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+              e.stopPropagation();
+              hover(true);
+              console.log('Pointer over card');
+            }}
+            onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+              e.stopPropagation();
+              hover(false);
+              console.log('Pointer out card');
             }}
             onPointerDown={(e: ThreeEvent<PointerEvent>) => {
-              if (e.target instanceof Element && card.current) {
-                e.target.setPointerCapture(e.pointerId);
+              e.stopPropagation();
+              if (card.current) {
+                (e.target as HTMLElement).setPointerCapture(
+                  e.pointerId,
+                );
                 drag(
                   new THREE.Vector3()
                     .copy(e.point)
                     .sub(vec.copy(card.current.translation())),
                 );
+                console.log('Card drag started');
               }
             }}
+            onPointerUp={(e: ThreeEvent<PointerEvent>) => {
+              e.stopPropagation();
+              (e.target as HTMLElement).releasePointerCapture(
+                e.pointerId,
+              );
+              drag(false);
+              console.log('Card drag ended');
+            }}
+            onPointerMissed={() => drag(false)}
           >
-            <mesh geometry={(nodes.card as THREE.Mesh).geometry}>
+            <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={
-                  (materials.base as THREE.MeshPhysicalMaterial).map
-                }
+                map={materials.base.map}
                 map-anisotropy={16}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
@@ -214,12 +230,12 @@ export default function Band({
               />
             </mesh>
             <mesh
-              geometry={(nodes.clip as THREE.Mesh).geometry}
+              geometry={nodes.clip.geometry}
               material={materials.metal}
               material-roughness={0.3}
             />
             <mesh
-              geometry={(nodes.clamp as THREE.Mesh).geometry}
+              geometry={nodes.clamp.geometry}
               material={materials.metal}
             />
           </group>

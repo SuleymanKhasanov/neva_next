@@ -1,4 +1,3 @@
-// src/features/AccordionMenu/ui/AccordionMenu.tsx
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +14,7 @@ import styles from './AccordionMenu.module.css';
 
 interface AccordionMenuProps {
   isMenuOpen: boolean;
-  categories: Category[];
+  categories: Category[] | null | undefined;
   activeSection?: 'Neva' | 'X-Solution';
   toggleSection?: () => void;
 }
@@ -26,12 +25,17 @@ export default function AccordionMenu({
   activeSection = 'Neva',
   toggleSection = () => {},
 }: AccordionMenuProps) {
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   const nevaCategories =
-    categories.find((category) => category.name === 'Neva')
+    safeCategories.find((category) => category.name === 'Neva')
       ?.subcategories || [];
   const xSolutionCategories =
-    categories.find((category) => category.name === 'X-Solution')
+    safeCategories.find((category) => category.name === 'X-Solution')
       ?.subcategories || [];
+
+  console.log(nevaCategories);
+  console.log(xSolutionCategories);
 
   return (
     <div

@@ -1,4 +1,3 @@
-// src/shared/lib/api.ts
 import {
   ApiResponse,
   Category,
@@ -16,7 +15,7 @@ export const fetchData = async <T>(
       headers: {
         'Accept-Language': locale,
       },
-      cache: 'force-cache', // Кэшируем ответы для статических данных
+      cache: 'force-cache',
     });
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

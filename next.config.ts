@@ -1,4 +1,4 @@
-// next.config.ts - Упрощенная версия без SVG loader
+// next.config.ts
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
@@ -7,135 +7,67 @@ const withNextIntl = createNextIntlPlugin(
 );
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // Для Docker
   reactStrictMode: true,
+
+  // Временно отключаем строгие проверки для сборки
+  eslint: {
+    ignoreDuringBuilds: false, // Включаем ESLint но с warning'ами
+  },
+  typescript: {
+    ignoreBuildErrors: false, // Строгая проверка TypeScript
+  },
 
   // Оптимизация изображений
   images: {
     domains: ['2.ugdr97aqcjm.xvest3.ru'],
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 год
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy:
-      "default-src 'self'; script-src 'none'; sandbox;",
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Экспериментальные функции для производительности
+  // Компрессия
+  compress: true,
+
+  // Экспериментальные функции
   experimental: {
     optimizePackageImports: [
-      'lucide-react',
-      'react-icons',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-select',
-      'framer-motion',
+      '@react-three/fiber',
+      '@react-three/drei',
     ],
-    webVitalsAttribution: ['CLS', 'LCP'],
-    optimisticClientCache: true,
-    scrollRestoration: true,
+    // serverComponentsExternalPackages: ['sharp'], // Для Sharp в Docker
   },
 
   // Webpack оптимизации
-  webpack: (config, { isServer }) => {
-    // Оптимизация для Three.js
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        crypto: false,
+  webpack: (config, { dev, isServer }) => {
+    // Оптимизация для 3D библиотек
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            three: {
+              name: 'three',
+              test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
+              chunks: 'all',
+              priority: 30,
+            },
+          },
+        },
       };
     }
 
-    // Оптимизация bundle size
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          // Vendor chunk
-          vendor: {
-            name: 'vendor',
-            chunks: 'all',
-            test: /node_modules/,
-            priority: 20,
-          },
-          // Three.js отдельно из-за размера
-          three: {
-            name: 'three',
-            chunks: 'all',
-            test: /node_modules\/(three|@react-three|@react-spring)/,
-            priority: 30,
-          },
-          // UI библиотеки
-          ui: {
-            name: 'ui',
-            chunks: 'all',
-            test: /node_modules\/(@radix-ui|lucide-react|react-icons)/,
-            priority: 25,
-          },
-          // Общие компоненты
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 10,
-            reuseExistingChunk: true,
-          },
-        },
-      },
+    // Игнорируем критические warnings для сборки
+    config.stats = {
+      warnings: false,
     };
 
     return config;
   },
 
-  // Заголовки для кэширования и безопасности
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-      {
-        source: '/api/image',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value:
-              'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ];
-  },
-
-  // Перенаправления API (существующие)
   async rewrites() {
     return [
       {
@@ -143,22 +75,6 @@ const nextConfig: NextConfig = {
         destination: 'https://2.ugdr97aqcjm.xvest3.ru/api/:path*',
       },
     ];
-  },
-
-  // Компрессия
-  compress: true,
-
-  // Настройки для статических файлов
-  trailingSlash: false,
-
-  // ESLint конфигурация
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-
-  // TypeScript конфигурация
-  typescript: {
-    ignoreBuildErrors: false,
   },
 };
 

@@ -1,5 +1,4 @@
-// src/shared/lib/imageUtils.ts
-
+// src/shared/lib/imageUtils.tsx
 interface OptimizeImageOptions {
   width?: number;
   height?: number;
@@ -85,12 +84,14 @@ import { useState } from 'react';
 
 interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
   src: string;
+  alt: string; // Делаем alt обязательным
   fallbackSrc?: string;
   optimizeOptions?: OptimizeImageOptions;
 }
 
 export const OptimizedImage = ({
   src,
+  alt,
   fallbackSrc,
   optimizeOptions = {},
   ...props
@@ -118,6 +119,7 @@ export const OptimizedImage = ({
       <Image
         {...props}
         src={imgSrc}
+        alt={alt}
         onError={handleError}
         onLoad={handleLoad}
         style={{

@@ -2,268 +2,134 @@
 'use client';
 
 import Image, { ImageProps } from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface EnhancedImageProps extends Omit<ImageProps, 'src'> {
   src: string;
+  alt: string;
   targetWidth?: number;
   targetHeight?: number;
   quality?: number;
-  priority?: boolean;
-  lazy?: boolean;
-  formats?: ('avif' | 'webp' | 'jpeg')[];
-  placeholder?: 'blur' | 'empty';
-  blurDataURL?: string;
+  fallbackSrc?: string;
 }
 
 export const EnhancedImage = ({
   src,
+  alt,
   targetWidth = 800,
   targetHeight = 600,
   quality = 80,
-  priority = false,
-  lazy = true,
-  formats = ['avif', 'webp', 'jpeg'],
-  alt,
-  placeholder = 'blur',
-  blurDataURL,
+  fallbackSrc,
   ...imageProps
 }: EnhancedImageProps) => {
-  const [imageSrc, setImageSrc] = useState<string>('');
+  const [imageSrc, setImageSrc] = useState<string>(src);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [isInView, setIsInView] = useState(!lazy || priority);
+  const [hasError, setHasError] = useState(false);
 
-  // Создание оптимизированных URL для разных форматов
-  const createOptimizedUrl = (
-    originalUrl: string,
-    format: string = 'webp',
-  ) => {
-    if (
-      originalUrl.startsWith('/') ||
-      originalUrl.startsWith('data:')
-    ) {
-      return originalUrl;
-    }
-
-    const params = new URLSearchParams({
-      url: originalUrl,
-      w: targetWidth.toString(),
-      h: targetHeight.toString(),
-      q: quality.toString(),
-      f: format,
-    });
-
-    return `/api/image?${params.toString()}`;
-  };
-
-  // Intersection Observer для lazy loading
-  useEffect(() => {
-    if (!lazy || priority || isInView) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: '100px', // Начинаем загрузку за 100px до появления
-      },
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [lazy, priority, isInView]);
-
-  // Выбор лучшего формата на основе поддержки браузера
-  useEffect(() => {
-    if (!isInView) return;
-
-    const getBestFormat = async () => {
-      // Проверяем поддержку AVIF
-      if (formats.includes('avif')) {
-        try {
-          const avifSupported = await checkFormatSupport('avif');
-          if (avifSupported) {
-            setImageSrc(createOptimizedUrl(src, 'avif'));
-            return;
-          }
-        } catch {}
+  // Создание оптимизированного URL
+  const createOptimizedUrl = useCallback(
+    (originalUrl: string) => {
+      if (
+        originalUrl.startsWith('/') ||
+        originalUrl.startsWith('data:') ||
+        originalUrl.includes('/api/image')
+      ) {
+        return originalUrl;
       }
 
-      // Проверяем поддержку WebP
-      if (formats.includes('webp')) {
-        try {
-          const webpSupported = await checkFormatSupport('webp');
-          if (webpSupported) {
-            setImageSrc(createOptimizedUrl(src, 'webp'));
-            return;
-          }
-        } catch {}
-      }
+      const params = new URLSearchParams({
+        url: originalUrl,
+        w: targetWidth.toString(),
+        h: targetHeight.toString(),
+        q: quality.toString(),
+      });
 
-      // Fallback к JPEG
-      setImageSrc(createOptimizedUrl(src, 'jpeg'));
-    };
+      return `/api/image?${params.toString()}`;
+    },
+    [targetWidth, targetHeight, quality],
+  );
 
-    getBestFormat();
-  }, [src, isInView, formats, targetWidth, targetHeight, quality]);
+  // Обработка изменения src
+  useEffect(() => {
+    setIsLoading(true);
+    setHasError(false);
 
-  // Проверка поддержки формата браузером
-  const checkFormatSupport = (format: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(img.width === 1 && img.height === 1);
-      img.onerror = () => resolve(false);
-
-      const testImages = {
-        webp: 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=',
-        avif: 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAEAAAABAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgABogQEAwgMg8f8D///8WfhwB8+ErK42A=',
-      };
-
-      img.src = testImages[format as keyof typeof testImages] || '';
-    });
-  };
+    const optimizedUrl = createOptimizedUrl(src);
+    setImageSrc(optimizedUrl);
+  }, [src, createOptimizedUrl]);
 
   const handleLoad = () => {
     setIsLoading(false);
-    setError(false);
+    setHasError(false);
   };
 
   const handleError = () => {
     setIsLoading(false);
-    setError(true);
-    // Fallback к оригинальному изображению
-    setImageSrc(src);
+    setHasError(true);
+
+    if (fallbackSrc) {
+      setImageSrc(fallbackSrc);
+    } else if (imageSrc !== src) {
+      // Пробуем оригинальный URL
+      setImageSrc(src);
+    }
   };
-
-  // Генерация placeholder blur
-  const defaultBlurDataURL =
-    blurDataURL ||
-    'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q==';
-
-  if (!isInView) {
-    return (
-      <div
-        ref={imgRef}
-        style={{
-          width: imageProps.width || targetWidth,
-          height: imageProps.height || targetHeight,
-          backgroundColor: '#f0f0f0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 'inherit',
-        }}
-        className={imageProps.className}
-      >
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      {imageSrc && (
-        <Image
-          {...imageProps}
-          ref={imgRef}
-          src={imageSrc}
-          alt={alt || ''}
-          onLoad={handleLoad}
-          onError={handleError}
-          priority={priority}
-          placeholder={placeholder}
-          blurDataURL={
-            placeholder === 'blur' ? defaultBlurDataURL : undefined
-          }
-          quality={75} // Next.js будет использовать наш API
+      <Image
+        {...imageProps}
+        src={imageSrc}
+        alt={alt}
+        onLoad={handleLoad}
+        onError={handleError}
+        style={{
+          ...imageProps.style,
+          opacity: isLoading ? 0.7 : 1,
+          transition: 'opacity 0.3s ease',
+        }}
+      />
+
+      {/* Индикатор загрузки */}
+      {isLoading && (
+        <div
           style={{
-            ...imageProps.style,
-            opacity: isLoading ? 0.7 : 1,
-            transition: 'opacity 0.3s ease',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px',
+            height: '20px',
+            border: '2px solid #ddd',
+            borderTop: '2px solid #666',
+            borderRadius: '50%',
+            zIndex: 1,
           }}
+          className="animate-spin"
         />
       )}
 
-      {/* Индикатор загрузки */}
-      {isLoading && !error && (
+      {/* Индикатор ошибки */}
+      {hasError && (
         <div
           style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
+            background: 'rgba(255, 0, 0, 0.1)',
+            padding: '8px',
+            borderRadius: '4px',
             zIndex: 1,
           }}
         >
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-        </div>
-      )}
-
-      {/* Индикатор ошибки */}
-      {error && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: '#666',
-            fontSize: '12px',
-          }}
-        >
-          Ошибка загрузки
+          <span style={{ fontSize: '12px', color: '#666' }}>
+            Ошибка загрузки
+          </span>
         </div>
       )}
     </div>
   );
 };
 
-// Хук для массовой предзагрузки изображений
-export const useImagePreloader = () => {
-  const preloadImages = async (
-    urls: string[],
-    options?: {
-      width?: number;
-      height?: number;
-      quality?: number;
-      format?: string;
-    },
-  ) => {
-    const {
-      width = 400,
-      height = 300,
-      quality = 60,
-      format = 'webp',
-    } = options || {};
-
-    const preloadPromises = urls.map((url) => {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.as = 'image';
-      link.href = `/api/image?url=${encodeURIComponent(
-        url,
-      )}&w=${width}&h=${height}&q=${quality}&f=${format}`;
-      document.head.appendChild(link);
-
-      return new Promise<void>((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve();
-        img.onerror = () => resolve(); // Не блокируем на ошибках
-        img.src = link.href;
-      });
-    });
-
-    await Promise.allSettled(preloadPromises);
-  };
-
-  return { preloadImages };
-};
+export default EnhancedImage;

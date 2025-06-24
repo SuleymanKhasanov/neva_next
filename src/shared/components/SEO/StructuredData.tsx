@@ -1,100 +1,104 @@
 // src/shared/components/SEO/StructuredData.tsx
+import { Product } from '@/shared/model/types';
+
 interface StructuredDataProps {
-  data: Record<string, any>;
+  type: 'product' | 'organization' | 'website' | 'breadcrumb';
+  data: Product | Organization | Website | BreadcrumbData;
 }
 
-export function StructuredData({ data }: StructuredDataProps) {
+interface Organization {
+  name: string;
+  url: string;
+  logo: string;
+  sameAs: string[];
+}
+
+interface Website {
+  name: string;
+  url: string;
+  description: string;
+}
+
+interface BreadcrumbData {
+  items: Array<{
+    name: string;
+    url: string;
+  }>;
+}
+
+const StructuredData = ({ type, data }: StructuredDataProps) => {
+  const generateStructuredData = () => {
+    switch (type) {
+      case 'product':
+        const product = data as Product;
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: product.description,
+          image: product.image,
+          brand: {
+            '@type': 'Brand',
+            name: 'East Telecom',
+          },
+          offers: {
+            '@type': 'Offer',
+            availability: 'https://schema.org/InStock',
+            priceCurrency: 'UZS',
+          },
+        };
+
+      case 'organization':
+        const org = data as Organization;
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: org.name,
+          url: org.url,
+          logo: org.logo,
+          sameAs: org.sameAs,
+        };
+
+      case 'website':
+        const website = data as Website;
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: website.name,
+          url: website.url,
+          description: website.description,
+        };
+
+      case 'breadcrumb':
+        const breadcrumb = data as BreadcrumbData;
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: breadcrumb.items.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            item: item.url,
+          })),
+        };
+
+      default:
+        return null;
+    }
+  };
+
+  const structuredData = generateStructuredData();
+
+  if (!structuredData) return null;
+
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(data, null, 2),
+        __html: JSON.stringify(structuredData, null, 2),
       }}
     />
   );
-}
+};
 
-// Генератор структурированных данных для организации
-export function generateOrganizationSchema() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'East Telecom',
-    url: 'https://easttelecom.uz',
-    logo: 'https://easttelecom.uz/images/logo.png',
-    description:
-      'Ведущий поставщик IT оборудования и решений в Узбекистане',
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'UZ',
-      addressLocality: 'Ташкент',
-    },
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+998-78-150-00-00',
-      contactType: 'customer service',
-      availableLanguage: ['Russian', 'Uzbek', 'English'],
-    },
-    sameAs: [
-      'https://t.me/easttelecom',
-      'https://instagram.com/easttelecom',
-    ],
-  };
-}
-
-// Генератор для каталога продуктов
-export function generateProductCatalogSchema(
-  products: Product[],
-  categories: Category[],
-) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Каталог IT оборудования East Telecom',
-    description:
-      'Полный каталог серверного оборудования, сетевых решений и IT продуктов',
-    numberOfItems: products.length,
-    itemListElement: products.map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'Product',
-        name: product.name,
-        description: product.description,
-        category: product.category,
-        image: product.image?.[0]
-          ? `/api/image?url=${encodeURIComponent(
-              product.image[0],
-            )}&w=800&h=600&f=webp`
-          : undefined,
-        brand: {
-          '@type': 'Brand',
-          name: 'East Telecom',
-        },
-        offers: {
-          '@type': 'AggregateOffer',
-          availability: 'https://schema.org/InStock',
-          priceValidUntil: new Date(
-            Date.now() + 365 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
-        },
-      },
-    })),
-  };
-}
-
-// Генератор хлебных крошек
-export function generateBreadcrumbSchema(
-  items: Array<{ name: string; url: string }>,
-) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.name,
-      item: item.url,
-    })),
-  };
-}
+export default StructuredData;

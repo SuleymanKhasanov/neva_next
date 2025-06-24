@@ -2,10 +2,11 @@
 'use client';
 
 import Image, { ImageProps } from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface SimpleOptimizedImageProps extends Omit<ImageProps, 'src'> {
   src: string;
+  alt: string;
   targetWidth?: number;
   targetHeight?: number;
   quality?: number;
@@ -13,10 +14,10 @@ interface SimpleOptimizedImageProps extends Omit<ImageProps, 'src'> {
 
 export const SimpleOptimizedImage = ({
   src,
+  alt,
   targetWidth = 800,
   targetHeight = 600,
   quality = 80,
-  alt,
   ...imageProps
 }: SimpleOptimizedImageProps) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
@@ -24,23 +25,26 @@ export const SimpleOptimizedImage = ({
   const mounted = useRef(true);
 
   // Создание URL через API
-  const createOptimizedUrl = (originalUrl: string) => {
-    if (
-      originalUrl.startsWith('/') ||
-      originalUrl.startsWith('data:')
-    ) {
-      return originalUrl;
-    }
+  const createOptimizedUrl = useCallback(
+    (originalUrl: string) => {
+      if (
+        originalUrl.startsWith('/') ||
+        originalUrl.startsWith('data:')
+      ) {
+        return originalUrl;
+      }
 
-    const params = new URLSearchParams({
-      url: originalUrl,
-      w: targetWidth.toString(),
-      h: targetHeight.toString(),
-      q: quality.toString(),
-    });
+      const params = new URLSearchParams({
+        url: originalUrl,
+        w: targetWidth.toString(),
+        h: targetHeight.toString(),
+        q: quality.toString(),
+      });
 
-    return `/api/image?${params.toString()}`;
-  };
+      return `/api/image?${params.toString()}`;
+    },
+    [targetWidth, targetHeight, quality],
+  );
 
   // Эффект оптимизации
   useEffect(() => {
@@ -63,7 +67,7 @@ export const SimpleOptimizedImage = ({
     return () => {
       mounted.current = false;
     };
-  }, [src, targetWidth, targetHeight, quality]);
+  }, [src, createOptimizedUrl]);
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -79,7 +83,7 @@ export const SimpleOptimizedImage = ({
       <Image
         {...imageProps}
         src={imageSrc}
-        alt={alt || ''}
+        alt={alt}
         onLoad={handleLoad}
         onError={handleError}
         style={{

@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { ContentBox } from '@/entities/ContentBox';
 import { Header } from '@/widgets/Header';
-import { InteractiveAccordionMenu } from '@/features/AccordionMenu'; // Используем новый компонент
+import { InteractiveAccordionMenu } from '@/features/AccordionMenu';
 import { ProductCard } from '@/features/ProductCard';
 import { Product, Category } from '@/shared/model/types';
+import { useSearchStore } from '@/shared/store/searchStore';
 import { CategoryIcons } from '../assets/categoryIcons';
 import { LuServer } from 'react-icons/lu';
 import styles from './HomePage.module.css';
@@ -23,11 +24,18 @@ export default function HomePage({
 }: HomePageProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Читаем состояние поиска из store
+  const { searchResults } = useSearchStore();
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const groupedProducts = products.reduce((acc, product) => {
+  // Используем результаты поиска если есть, иначе обычные продукты
+  const productsToShow =
+    searchResults.length > 0 ? searchResults : products;
+
+  const groupedProducts = productsToShow.reduce((acc, product) => {
     const categoryId = product.category_id;
     if (!acc[categoryId]) {
       acc[categoryId] = {

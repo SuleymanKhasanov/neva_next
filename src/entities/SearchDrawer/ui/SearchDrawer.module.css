@@ -1,12 +1,14 @@
+/* src/entities/SearchDrawer/ui/SearchDrawer.module.css */
+
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-
+  background-color: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(5px);
-  z-index: 20;
+  z-index: 50;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -14,10 +16,55 @@
 
 .drawer {
   width: 100%;
-  max-width: 400px;
-  background-color: var(--background); /* Полупрозрачный белый фон */
-  backdrop-filter: blur(5px);
+  max-width: 800px;
+  background-color: var(--background);
+  backdrop-filter: blur(10px);
+  border-radius: 0px 0px 20px 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
+  border-top: none;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchSection {
   padding: 20px;
-  border-radius: 0px 0px 15px 15px; /* Скругление нижних углов */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.resultsSection {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .overlay {
+    padding: 0;
+  }
+
+  .drawer {
+    max-width: 100%;
+    border-radius: 0px 0px 16px 16px;
+    max-height: 85vh;
+  }
+
+  .searchSection {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .drawer {
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .searchSection {
+    padding: 12px;
+  }
 }

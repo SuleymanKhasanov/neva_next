@@ -15,21 +15,34 @@ const Logo = () => {
   const router = useRouter();
   const { setIsLoading } = useLoading();
   const [isDark, setIsDark] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Устанавливаем mounted состояние
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
-    const isDarkTheme =
-      document.documentElement.classList.contains('dark');
-    setIsDark(isDarkTheme);
+    if (!isMounted) return;
 
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
+    const updateTheme = () => {
+      const isDarkTheme =
+        document.documentElement.classList.contains('dark');
+      setIsDark(isDarkTheme);
+    };
+
+    // Первоначальная установка темы
+    updateTheme();
+
+    // Наблюдатель за изменениями класса
+    const observer = new MutationObserver(updateTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
     });
+
     return () => observer.disconnect();
-  }, []);
+  }, [isMounted]);
 
   const handleLogoClick = () => {
     setIsLoading(true);
@@ -37,8 +50,26 @@ const Logo = () => {
     setTimeout(() => setIsLoading(false), 500);
   };
 
+  // Возвращаем светлую тему по умолчанию до монтирования
+  if (!isMounted) {
+    return (
+      <div>
+        <button onClick={handleLogoClick} className="cursor-pointer">
+          <Image
+            src={lightLogoSrc}
+            alt={t(TranslationKeys.HeaderLogo)}
+            className="w-13 h-13"
+            width={52}
+            height={52}
+            priority
+          />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div suppressHydrationWarning>
       <button onClick={handleLogoClick} className="cursor-pointer">
         <Image
           src={isDark ? darkLogoSrc : lightLogoSrc}
@@ -46,6 +77,7 @@ const Logo = () => {
           className="w-13 h-13"
           width={52}
           height={52}
+          priority
         />
       </button>
     </div>
